@@ -1,0 +1,3 @@
+# ignore raw data
+/data/raw/ml-25m/
+*.zip
