@@ -1,5 +1,2 @@
 # store large dataset files with Git LFS instead of regular git
 data/raw/ml-25m/* filter=lfs diff=lfs merge=lfs -text
-
-# also track compressed dataset in Git LFS
-data/raw/ml-25m.zip filter=lfs diff=lfs merge=lfs -text
