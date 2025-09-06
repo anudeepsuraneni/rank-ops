@@ -1,3 +1,5 @@
-# ignore raw data
+# ignore raw dataset directory
 /data/raw/ml-25m/
+
+# ignore all zip files (large data or archives)
 *.zip
