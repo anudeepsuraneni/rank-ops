@@ -31,11 +31,20 @@ Stack: Python 3.11, Poetry, DuckDB/Postgres, FAISS/ALS, LightGBM/XGBoost, FastAP
 - Day 19: GitHub packaging
 - Day 20: Launch
 
-## Day 1:
+## Day 1
 
-🚀 Kicked off the project repo with clean scaffolding, CI/CD (GitHub Actions), testing, and pre-commit hooks. 
+🚀 Kicked off the project repo with clean scaffolding, CI/CD (GitHub Actions), testing, and pre-commit hooks.
 
 **Learning log:**
-- *What worked:* Fast reproducible setup with Poetry + CI from the start.
-- *What broke:* Poetry’s default package install needed a src/ package fix.
-- *What’s next:* Formalize data contracts and feature plan tomorrow (Day 2).
+- ✅What worked: Fast reproducible setup with Poetry + CI from the start.
+- ⚠️What broke: Poetry’s default package install needed a src/ package fix.
+- ⏭️What’s next: Formalize data contracts and feature plan tomorrow (Day 2).
+
+## Day 2
+
+Added a feature catalog + data contracts for MovieLens-25M. Built a DuckDB + SQL feature pipeline (user/movie/interactions). Validated schema & null safety with pytest + CI. Automated dataset download & reproducibility.
+
+**Learning log:**
+- ✅What worked: DuckDB pipelines are blazing fast & reproducible.
+- ⚠️What broke: Large dataset download is heavy for CI — mitigated by sampling.
+- ⏭️What’s next: Candidate generation v1 (ALS/FAISS).

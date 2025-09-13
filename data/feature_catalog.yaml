@@ -1,0 +1,33 @@
+version: 1
+dataset: movielens-25m
+tables:
+  users:
+    keys: [userId]
+    features:
+      - name: user_avg_rating
+        type: float
+        description: Average rating given by user
+      - name: user_rating_count
+        type: int
+        description: Number of ratings given by user
+  movies:
+    keys: [movieId]
+    features:
+      - name: movie_avg_rating
+        type: float
+        description: Average rating received
+      - name: movie_rating_count
+        type: int
+        description: Number of ratings received
+      - name: release_year
+        type: int
+        description: Year of movie release
+  interactions:
+    keys: [userId, movieId]
+    features:
+      - name: rating
+        type: float
+        description: Explicit rating
+      - name: timestamp
+        type: int
+        description: Unix timestamp

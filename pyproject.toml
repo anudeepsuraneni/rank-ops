@@ -19,6 +19,7 @@ duckdb = "^0.10"
 faiss-cpu = "^1.8"
 fastapi = "^0.111"
 uvicorn = "^0.30"
+pyyaml = "^6.0.2"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.3"
