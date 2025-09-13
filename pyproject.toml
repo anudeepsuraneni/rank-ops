@@ -1,0 +1,29 @@
+[tool.poetry]
+name = "rank-ops"
+version = "0.1.0"
+description = "Production-ready recommender with contextual bandits & OPE"
+authors = ["Anudeep Suraneni <anudeepsuraneni@gmail.com>"]
+readme = "README.md"
+packages = [
+  { include = "rank_ops", from = "src" }
+]
+
+[tool.poetry.dependencies]
+python = ">=3.11, <3.12"
+numpy = "^1.26"
+pandas = "^2.1"
+scikit-learn = "^1.4"
+lightgbm = "^4.3"
+xgboost = "^2.0"
+duckdb = "^0.10"
+faiss-cpu = "^1.8"
+fastapi = "^0.111"
+uvicorn = "^0.30"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.3"
+pre-commit = "^3.7"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
