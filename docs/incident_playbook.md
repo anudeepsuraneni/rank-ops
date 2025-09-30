@@ -1,0 +1,1 @@
+Alerts (latency, error rate, drift), rollback steps (pin previous model), circuit breaker (serve popularity fallback), on-call matrix.

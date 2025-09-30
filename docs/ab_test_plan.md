@@ -1,0 +1,1 @@
+Primary metric (CTR@K), guardrails, sample-size calc outline, exposure policy, fairness slices to check.

@@ -1,0 +1,1 @@
+Problem, solution, metrics (AUC, NDCG@K), OPE uplift snapshot from data/ope_uplift.csv, translate to “CTR → revenue”.

@@ -1,0 +1,27 @@
+[tool.poetry]
+name = "rank-ops"
+version = "1.0.0"
+description = "Recommender with ALS + LightGBM + bandit + OPE."
+authors = ["Anudeep Suraneni <anudeepsuraneni@gmail.com>"]
+packages = [{ include = "src", from = "." }]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+pandas = "^2.2"
+numpy = "^1.26"
+scikit-learn = "^1.5"
+lightgbm = "^4.3"
+implicit = "^0.7"
+fastapi = "^0.111"
+uvicorn = {extras=["standard"], version="^0.30"}
+python-dotenv = "^1.0"
+evidently = "^0.4"
+requests = "^2.32"
+pytest = "^8.3"
+
+[build-system]
+requires = ["poetry-core>=1.9.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.pytest.ini_options]
+filterwarnings = ["ignore:.*scipy\\.linalg\\.basic.*:DeprecationWarning"]
