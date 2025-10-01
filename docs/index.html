@@ -1,0 +1,51 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>RANK-OPS Demo</title>
+  <style>
+    body { font: 14px/1.4 system-ui, sans-serif; max-width: 900px; margin: 2rem auto; padding: 0 1rem; }
+    .row { display: flex; gap: 12px; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; }
+    button { padding: 8px 12px; border-radius: 8px; border: 1px solid #ccc; cursor: pointer; }
+    ul { list-style: none; padding: 0; }
+    li { margin: .5rem 0; display: flex; align-items: center; gap: 8px; }
+  </style>
+</head>
+<body>
+  <h1>RANK-OPS Demo</h1>
+  <div class="row">
+    <label>User ID: <input id="uid" type="number" value="1" min="1" /></label>
+    <label>API URL: <input id="api" type="text" size="50" placeholder="https://YOUR-CLOUD-RUN-URL" /></label>
+    <label>API Key: <input id="key" type="text" size="24" placeholder="x-api-key (optional)" /></label>
+    <button onclick="recommend()">Recommend</button>
+  </div>
+  <div id="latency"></div>
+  <ul id="list"></ul>
+  <script>
+    async function recommend(){
+      const uid = document.getElementById('uid').value;
+      const api = document.getElementById('api').value.trim();
+      const key = document.getElementById('key').value.trim();
+      const headers = key ? {"x-api-key": key} : {};
+      const r = await fetch(`${api}/recommend?user_id=${uid}`, { headers });
+      const data = await r.json();
+      document.getElementById('latency').textContent = `Latency: ${data.latency_ms} ms`;
+      const ul = document.getElementById('list'); ul.innerHTML = "";
+      data.items.forEach((it) => {
+        const li = document.createElement('li');
+        const b = document.createElement('button');
+        b.textContent = "👍 click"; b.onclick = () => feedback(uid, it, 1, api, key);
+        const span = document.createElement('span'); span.textContent = `item ${it}`;
+        ul.appendChild(li); li.appendChild(b); li.appendChild(span);
+      });
+    }
+    async function feedback(uid, item, reward, api, key){
+      const headers = key ? {"x-api-key": key} : {};
+      const r = await fetch(`${api}/feedback?user_id=${uid}&item_id=${item}&reward=${reward}`, {method:"POST", headers});
+      const j = await r.json();
+      alert(`Logged feedback with propensity=${j.propensity}`);
+    }
+  </script>
+</body>
+</html>

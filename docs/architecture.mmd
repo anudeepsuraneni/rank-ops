@@ -1,0 +1,47 @@
+flowchart LR
+  %% ---------- Offline ----------
+  subgraph Offline
+    A[Ingest MovieLens]
+    B[Feature Build]
+    C[ALS Train]
+    D[Ranker Train – LGBM]
+    E[Co-vis Matrix]
+    G[Artifacts]
+    H[(Container Image)]
+
+    A --> B
+    B --> C
+    B --> D
+    B --> E
+    C -->|user/item factors| G
+    D -->|ranker.pkl + stats| G
+    E -->|covis.pkl| G
+    G -->|Cloud Build| H
+  end
+
+  %% ---------- Online ----------
+  subgraph Online (Cloud Run)
+    I[FastAPI /recommend]
+    J[Candidates: ALS/FAISS/COVIS]
+    K[Ranker Scores]
+    L[Bandit (epsilon/LinUCB)]
+    M[Propensity Log (served.log)]
+    N["/metrics (Prometheus)"]
+    O[Feedback Endpoint]
+    P[feedback.log]
+    Q[OPE (IPS/SNIPS/DR)]
+    R[Exec Snapshot (CSV)]
+    S[Fallback Popularity]
+
+    H --> I
+    I --> J
+    J --> K
+    K --> L
+    L --> M
+    I --> N
+    M --> O
+    O --> P
+    P --> Q
+    Q --> R
+    I --> S
+  end

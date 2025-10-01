@@ -16,11 +16,6 @@ cp .env.example .env
 # set API_KEY in .env
 ```
 
-## End-to-End smoke test (data → train → serve → feedback → OPE → monitoring)
-```bash
-poetry run python src/smoke.py
-```
-
 ## End-to-End full run
 1) `poetry run python src/data.py` → build `data/ratings.parquet`
 2) `poetry run python src/train.py` → writes `models/*.pkl`

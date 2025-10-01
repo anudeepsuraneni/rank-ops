@@ -1,31 +1,41 @@
 import numpy as np
 from typing import List, Tuple, Optional
+import os, json
 
 def explore(scores: np.ndarray, eps: float = 0.05) -> np.ndarray:
     noise = np.random.rand(len(scores)) * eps
     return scores + noise
 
 class LinUCB:
-    def __init__(self, alpha: float = 1.0, dim: int = 1):
-        self.alpha = alpha
-        self.dim = dim
-        self.A = {}
-        self.b = {}
+    def __init__(self, d: int, alpha: float = 1.0, path: str = "models/linucb.json"):
+        self.d = d; self.alpha = alpha; self.path = path
+        self.A = np.eye(d); self.b = np.zeros((d,1))
+        if os.path.exists(path): self.load()
 
-    def _init(self, arm: int):
-        self.A[arm] = np.eye(self.dim)
-        self.b[arm] = np.zeros(self.dim)
+    def score(self, x: np.ndarray) -> float:
+        A_inv = np.linalg.inv(self.A)
+        theta = A_inv @ self.b
+        mu = float(x.T @ theta)
+        ci = float(self.alpha * np.sqrt(x.T @ A_inv @ x))
+        return mu + ci
 
-    def score(self, arm: int, x: np.ndarray) -> float:
-        if arm not in self.A: self._init(arm)
-        A_inv = np.linalg.inv(self.A[arm]); theta = A_inv.dot(self.b[arm])
-        return float(theta.dot(x) + self.alpha * np.sqrt(x.dot(A_inv).dot(x)))
+    def update(self, x: np.ndarray, r: float):
+        x = x.reshape(-1,1)
+        self.A += x @ x.T
+        self.b += r * x
+        self.save()
 
-    def update(self, arm: int, x: np.ndarray, r: float):
-        if arm not in self.A: self._init(arm)
-        x = x.reshape(-1, 1)
-        self.A[arm] += x.dot(x.T)
-        self.b[arm] += (r * x.ravel())
+    def save(self) -> None:
+        s = {"A": self.A.tolist(), "b": self.b.tolist(), "d": self.d, "alpha": self.alpha}
+        os.makedirs(os.path.dirname(self.path), exist_ok=True)
+        json.dump(s, open(self.path,"w"))
+
+    def load(self) -> None:
+        s = json.load(open(self.path))
+        import numpy as np
+        self.A = np.array(s["A"], dtype=float)
+        self.b = np.array(s["b"], dtype=float)
+        self.d = int(s["d"]); self.alpha = float(s["alpha"])
 
 def softmax(x: np.ndarray) -> np.ndarray:
     z = x - x.max()
@@ -37,8 +47,9 @@ def apply_bandit(scores: np.ndarray,
                  policy: str = "epsilon",
                  user_ctx: Optional[np.ndarray] = None) -> Tuple[np.ndarray, np.ndarray]:
     if policy == "linucb" and user_ctx is not None:
-        lin = LinUCB(alpha=0.5, dim=len(user_ctx))
-        ucb_scores = np.array([lin.score(it, user_ctx) for it in item_ids])
+        lin = LinUCB(d=1, alpha=0.5)
+        feats = np.array(scores).reshape(-1,1)     # d=1 feature = ranker_score
+        ucb_scores = np.array([lin.score(x) for x in feats])
         probs = softmax(ucb_scores)
         return ucb_scores, probs
     noisy = explore(scores, eps=0.05)

@@ -18,6 +18,8 @@ python-dotenv = "^1.0"
 evidently = "^0.4"
 requests = "^2.32"
 pytest = "^8.3"
+prometheus-client = "^0.20"
+faiss-cpu = "^1.8"
 
 [build-system]
 requires = ["poetry-core>=1.9.0"]

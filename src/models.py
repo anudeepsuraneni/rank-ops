@@ -1,10 +1,10 @@
-import pickle, pandas as pd, numpy as np
+import pickle, os, pandas as pd, numpy as np
 from scipy import sparse
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import roc_auc_score
 import lightgbm as lgb
 from typing import cast
-import os
+from scipy.sparse import csr_matrix
 
 def _compute_item_stats(df: pd.DataFrame) -> dict:
     stats = {}
@@ -46,6 +46,7 @@ def train_als(df: pd.DataFrame, path: str) -> dict:
     obj = {"model": model, "users": list(users.cat.categories),
            "items": list(items.cat.categories)}
     with open(path, "wb") as f: pickle.dump(obj, f)
+    print("Saved", path)
     return obj
 
 def train_ranker(feat_df: pd.DataFrame, path: str, stats_path: str) -> dict:
@@ -65,7 +66,7 @@ def train_ranker(feat_df: pd.DataFrame, path: str, stats_path: str) -> dict:
     with open(path, "wb") as f: pickle.dump({"model": model, "features": feats}, f)
     stats = _compute_item_stats(feat_df[["item_id", "rating"]])
     with open(stats_path, "wb") as f: pickle.dump(stats, f)
-    print("Ranker AUC", auc, "| saved", path, "and", stats_path)
+    print("Ranker AUC", auc, "| Saved", path, "and", stats_path)
     return {"model": model, "features": feats}
 
 def _serve_features(item_ids: list[int], stats: dict, feature_order: list[str]) -> pd.DataFrame:
@@ -92,7 +93,7 @@ def recommend_als(als_obj: dict, user_id: int, k: int) -> list[int]:
     recs = model.recommend(uid, csr_matrix((1, len(items))), N=k)
     return list(recs[0])
 
-def score_ranker(ranker_obj: dict, item_ids: list[int], stats_path: str) -> np.ndarray:
+def score_ranker(ranker_obj, item_ids: list[int], stats_path: str) -> np.ndarray:
     with open(stats_path, "rb") as f: stats = pickle.load(f)
     feature_order = ranker_obj.get("features", ["rating"])
     X = _serve_features(item_ids, stats, feature_order)
@@ -101,3 +102,41 @@ def score_ranker(ranker_obj: dict, item_ids: list[int], stats_path: str) -> np.n
 def popular_fallback(stats_path: str, k: int) -> list[int]:
     with open(stats_path, "rb") as f: stats = pickle.load(f)
     return stats["global_pop_items"][:k]
+
+def build_covis(df: pd.DataFrame, path: str, topk: int = 100) -> None:
+    users = df['user_id'].astype('int64').unique()
+    items = df['item_id'].astype('int64').unique()
+    u2i = {u:i for i,u in enumerate(users)}
+    it2i = {it:i for i,it in enumerate(items)}
+    I2it = {i:it for it,i in it2i.items()}
+    dedup = df.drop_duplicates(['user_id','item_id'])
+    rows = dedup['user_id'].map(u2i).values
+    cols = dedup['item_id'].map(it2i).values
+    data = np.ones(len(dedup), dtype=np.float32)
+    X = csr_matrix((data,(rows,cols)), shape=(len(users), len(items)), dtype=np.float32)
+    C = X.T @ X
+    C.setdiag(0); C.eliminate_zeros()
+    covis = {}
+    C = C.tocsr()
+    for i in range(C.shape[0]):
+        start,end = C.indptr[i], C.indptr[i+1]
+        js = C.indices[start:end]; vs=C.data[start:end]
+        if len(js)==0: covis[int(I2it[i])]=[]; continue
+        if len(js)>topk:
+            idx = np.argpartition(vs, -topk)[-topk:]
+            js,vs = js[idx], vs[idx]
+        order = np.argsort(-vs)
+        covis[int(I2it[i])] = [int(I2it[j]) for j in js[order]]
+    with open(path,'wb') as f: pickle.dump(covis,f)
+    print(f"Wrote {path} with {len(covis)} items")
+
+def build_faiss(path: str) -> None:
+    import faiss
+    als = pickle.load(open("models/als.pkl","rb"))
+    vecs = np.ascontiguousarray(als["model"].item_factors.astype(np.float32))
+    dim = vecs.shape[1]
+    index = faiss.IndexIVFFlat(faiss.IndexFlatL2(dim), dim, 100, faiss.METRIC_L2)
+    index.train(vecs); index.add(vecs) # type: ignore[reportCallIssue]
+    os.makedirs("models", exist_ok=True)
+    faiss.write_index(index, path)
+    print("Wrote", path)
