@@ -1,0 +1,40 @@
+[tool.poetry]
+name = "rank-ops"
+version = "0.1.0"
+description = "Production-grade recommender system with contextual bandits and OPE"
+authors = ["Anudeep Suraneni <anudeepsuraneni@gmail.com>"]
+license = "MIT"
+packages = [{ include = "rankops", from = "src" }]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+pandas = "^2.0"
+numpy = "^1.25"
+scikit-learn = "^1.3"
+lightgbm = "^4.0"
+xgboost = "^2.0"
+faiss-cpu = "^1.7"
+fastapi = "^0.100"
+uvicorn = "^0.22"
+duckdb = "^0.9"
+sqlalchemy = "^2.0"
+asyncpg = "^0.28"
+requests = "^2.31"
+evidently = "^0.7"
+streamlit = "^1.25"
+shap = "^0.48"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^7.4"
+pre-commit = "^3.2"
+flake8 = "^7.0"
+black = "^24.10"
+isort = "^5.12"
+
+[tool.pytest.ini_options]
+addopts = "--maxfail=1 --disable-warnings -q"
+python_files = ["test_*.py"]
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
