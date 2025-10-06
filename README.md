@@ -4,8 +4,6 @@ A production-ready recommender & ranking system with contextual bandits and offl
 
 ## Architecture
 
-![Architecture Diagram](architecture.md)
-
 This project demonstrates:
 - Candidate generation (e.g., ALS or FAISS-based retrieval)
 - Ranking model (LightGBM)
@@ -22,4 +20,8 @@ This project demonstrates:
   ```bash
   poetry install
   poetry run pre-commit install
+  ```
+2. Prepare data:
+  ```bash
+  poetry run python -m src.rankops.data_ingestion --download --path data/movielens
   ```
