@@ -6,6 +6,8 @@ import duckdb
 import pandas as pd
 import requests
 
+from rankops.sql_utils import create_session_table, sessionize_events
+
 
 def download_movielens(dest_path: str):
     """Download and extract MovieLens 25M dataset"""
@@ -42,6 +44,9 @@ def load_data(dest_path: str):
     movies = pd.read_csv(movies_path)
     conn.register("ratings", ratings)
     conn.register("movies", movies)
+    # Build desired tables
+    create_session_table(conn)
+    sessionize_events(conn)
     return conn
 
 
