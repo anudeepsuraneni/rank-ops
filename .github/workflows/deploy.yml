@@ -1,0 +1,49 @@
+name: Deploy to Cloud Run
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Check Dockerfile exists
+        id: check
+        run: |
+          if [ -f infra/Dockerfile ]; then
+            echo "dockerfile_exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "dockerfile_exists=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Set up gcloud
+        if: steps.check.outputs.dockerfile_exists == 'true'
+        uses: google-github-actions/setup-gcloud@v1
+        with:
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
+          service_account_key: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Build and submit to Cloud Build
+        if: steps.check.outputs.dockerfile_exists == 'true'
+        run: |
+          gcloud builds submit --tag gcr.io/${{ secrets.GCP_PROJECT_ID }}/rank-ops:${{ github.sha }}
+
+      - name: Deploy to Cloud Run (update existing service)
+        if: steps.check.outputs.dockerfile_exists == 'true'
+        run: |
+          gcloud run deploy rank-ops \
+            --image "gcr.io/${{ secrets.GCP_PROJECT_ID }}/rank-ops:${{ github.sha }}" \
+            --region "us-central1" \
+            --platform managed \
+            --allow-unauthenticated \
+            --project "${{ secrets.GCP_PROJECT_ID }}"
+
+      - name: Skip deploy (Dockerfile missing)
+        if: steps.check.outputs.dockerfile_exists == 'false'
+        run: |
+          echo "infra/Dockerfile not found — skipping build & deploy. Add infra/Dockerfile to enable deployment."

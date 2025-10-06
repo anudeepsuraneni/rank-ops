@@ -1,0 +1,40 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  lint-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install poetry
+          poetry install
+
+      - name: Run isort
+        run: |
+          poetry run isort src tests --profile black --line-length 88
+
+      - name: Run black (check)
+        run: |
+          poetry run black --check . --line-length 88
+
+      - name: Run flake8
+        run: |
+          poetry run flake8 src tests --max-line-length=88 --extend-ignore=E203,W503
+
+      - name: Run tests
+        run: |
+          poetry run pytest -q
