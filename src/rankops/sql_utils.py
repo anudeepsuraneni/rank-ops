@@ -55,3 +55,25 @@ def sessionize_events(conn) -> pd.DataFrame:
     """
     result = conn.execute(query).fetchdf()
     return result
+
+
+def create_user_metrics(conn) -> None:
+    query = """
+    CREATE TABLE user_metrics AS
+    SELECT userId, COUNT(*) AS rating_count, AVG(rating) AS avg_rating
+    FROM ratings
+    GROUP BY userId;
+    """
+    conn.execute(query)
+    print("User metrics table created.")
+
+
+def create_user_recency(conn) -> None:
+    query = """
+    CREATE TABLE user_recency AS
+    SELECT userId, MAX(timestamp) AS last_interaction
+    FROM ratings
+    GROUP BY userId;
+    """
+    conn.execute(query)
+    print("User recency table created.")
