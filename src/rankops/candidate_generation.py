@@ -12,7 +12,7 @@ def build_item_embeddings(ratings: pd.DataFrame, n_components: int = 50) -> np.n
     # Ensure n_components ≤ number of items (features after transpose) and ≥ 1
     n_components = max(1, int(min(n_components, user_item.shape[0])))
     # Compute SVD embeddings
-    svd = TruncatedSVD(n_components=n_components)
+    svd = TruncatedSVD(n_components=n_components, random_state=42)
     item_embeddings = svd.fit_transform(user_item.T)
     return item_embeddings
 
