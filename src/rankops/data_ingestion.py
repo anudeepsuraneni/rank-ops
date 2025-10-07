@@ -50,7 +50,7 @@ def load_data(dest_path: str):
     return conn
 
 
-if __name__ == "__main__":
+def main() -> None:
     parser = argparse.ArgumentParser(description="Data Ingestion")
     parser.add_argument("--download", action="store_true", help="Download dataset")
     parser.add_argument(
@@ -64,3 +64,7 @@ if __name__ == "__main__":
     conn = load_data(dest_path)
     if conn:
         print("Data ingestion complete.")
+
+
+if __name__ == "__main__":
+    main()
