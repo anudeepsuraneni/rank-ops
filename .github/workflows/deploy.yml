@@ -21,27 +21,38 @@ jobs:
             echo "dockerfile_exists=false" >> $GITHUB_OUTPUT
           fi
 
-      - name: Set up gcloud
+      - name: Authenticate to GCP
+        if: steps.check.outputs.dockerfile_exists == 'true'
+        uses: google-github-actions/auth@v1
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Set up gcloud CLI
         if: steps.check.outputs.dockerfile_exists == 'true'
         uses: google-github-actions/setup-gcloud@v1
         with:
           project_id: ${{ secrets.GCP_PROJECT_ID }}
-          service_account_key: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Show gcloud auth list (debug)
+        if: steps.check.outputs.dockerfile_exists == 'true'
+        run: |
+          gcloud auth list --filter=status:ACTIVE --format="value(account)"
 
       - name: Build and submit to Cloud Build
         if: steps.check.outputs.dockerfile_exists == 'true'
         run: |
-          gcloud builds submit --tag gcr.io/${{ secrets.GCP_PROJECT_ID }}/rank-ops:${{ github.sha }}
+          gcloud builds submit --config cloudbuild.yaml
 
-      - name: Deploy to Cloud Run (update existing service)
+      - name: Deploy to Cloud Run
         if: steps.check.outputs.dockerfile_exists == 'true'
         run: |
           gcloud run deploy rank-ops \
-            --image "gcr.io/${{ secrets.GCP_PROJECT_ID }}/rank-ops:${{ github.sha }}" \
+            --image "gcr.io/${{ secrets.GCP_PROJECT_ID }}/rank-ops:latest" \
             --region "us-central1" \
             --platform managed \
             --allow-unauthenticated \
-            --project "${{ secrets.GCP_PROJECT_ID }}"
+            --project "${{ secrets.GCP_PROJECT_ID }}" \
+            --timeout=300s
 
       - name: Skip deploy (Dockerfile missing)
         if: steps.check.outputs.dockerfile_exists == 'false'

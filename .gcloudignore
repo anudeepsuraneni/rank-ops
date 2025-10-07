@@ -1,0 +1,22 @@
+# Python
+__pycache__/
+.pytest_cache/
+*.py[cod]
+*.env
+*.venv
+venv/
+# Poetry lock
+poetry.lock
+# Editors
+.vscode/
+.idea/
+.DS_Store
+.coverage
+# Data and models
+data/
+models/
+# But not these readme docs
+!data/README.md
+!models/README.md
+# Logs
+*.log
