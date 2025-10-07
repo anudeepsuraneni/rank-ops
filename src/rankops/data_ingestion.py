@@ -6,7 +6,11 @@ import duckdb
 import pandas as pd
 import requests
 
-from rankops.sql_utils import create_session_table, sessionize_events
+from rankops.sql_utils import (
+    create_session_table,
+    create_user_metrics,
+    create_user_recency,
+)
 
 
 def download_movielens(dest_path: str):
@@ -46,7 +50,8 @@ def load_data(dest_path: str):
     conn.register("movies", movies)
     # Build desired tables
     create_session_table(conn)
-    sessionize_events(conn)
+    create_user_metrics(conn)
+    create_user_recency(conn)
     return conn
 
 
