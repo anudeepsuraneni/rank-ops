@@ -23,11 +23,15 @@ This project demonstrates:
   ```
 2. Prepare data:
   ```bash
-  poetry run python -m src.rankops.data_ingestion --download --path data/movielens
+  poetry run python -m rankops.data_ingestion --download --path data/movielens
   ```
 3. Train models:
   ```bash
-  poetry run python -m src.rankops.candidate_generation
-  poetry run python -m src.rankops.ranker
+  poetry run python -m rankops.candidate_generation
+  poetry run python -m rankops.ranker
+  ```
+4. Run API:
+  ```bash
+  poetry run uvicorn rankops.api_server:app --reload
   ```
   
