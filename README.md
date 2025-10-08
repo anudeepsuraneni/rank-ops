@@ -25,3 +25,9 @@ This project demonstrates:
   ```bash
   poetry run python -m src.rankops.data_ingestion --download --path data/movielens
   ```
+3. Train models:
+  ```bash
+  poetry run python -m src.rankops.candidate_generation
+  poetry run python -m src.rankops.ranker
+  ```
+  
