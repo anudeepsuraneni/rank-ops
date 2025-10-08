@@ -34,4 +34,7 @@ This project demonstrates:
   ```bash
   poetry run uvicorn rankops.api_server:app --reload
   ```
-  
+5. Run tests:
+  ```bash
+  poetry run pytest -q
+  ```
