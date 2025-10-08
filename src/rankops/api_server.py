@@ -33,6 +33,7 @@ def recommend(user_id: int, top_k: int = 10):
     # TODO: generate actual recommendations later
     import random
 
+    # Placeholder: generate recommendations (here: random)
     recs = random.sample(item_ids, top_k)
     return RecommendResponse(user_id=user_id, recommendations=recs)
 

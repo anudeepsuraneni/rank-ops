@@ -26,4 +26,4 @@ RUN poetry config virtualenvs.create false && poetry install
 EXPOSE 8000 8080
 
 # Command to run the API
-CMD ["sh", "-c", "uvicorn src.rankops.api_server:app --host 0.0.0.0 --port ${PORT:-8080}"]
+CMD ["sh", "-c", "uvicorn rankops.api_server:app --host 0.0.0.0 --port ${PORT:-8080}"]
